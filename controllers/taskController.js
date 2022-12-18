@@ -39,23 +39,23 @@ const createTask = async (req, res) => {
 };
 
 // toggling progress
-const toggleProgress = async (req, res) => {
-  const task = await Task.findById(req.params.id);
-  try {
-    if (task) {
-      task = !task.progress;
-      task.save();
-      res.status(200).json({
-        message: `Progress of task id: ${task.id} has been set to ${task.status}`,
-        task,
-      });
-    }
-  } catch (error) {
-    res.status(401).json({
-      message: `Could not toggle progress of id: ${req.params.id}, ${error.message}`,
-    });
-  }
-};
+// const toggleProgress = async (req, res) => {
+//   const task = await Task.findById(req.params.id);
+//   try {
+//     if (task) {
+//       task = !task.progress;
+//       task.save();
+//       res.status(200).json({
+//         message: `Progress of task id: ${task.id} has been set to ${task.status}`,
+//         task,
+//       });
+//     }
+//   } catch (error) {
+//     res.status(401).json({
+//       message: `Could not toggle progress of id: ${req.params.id}, ${error.message}`,
+//     });
+//   }
+// };
 
 // updating task or date
 const updateTask = async (req, res) => {
@@ -66,7 +66,11 @@ const updateTask = async (req, res) => {
     task.text = text ? text : task.text;
     task.description = description ? description : task.description;
     task.dateToComplete = dateToComplete ? dateToComplete : task.dateToComplete;
-    task.progress = progress ? progress : task.progress
+    task.progress = progress ? progress : task.progress;
+
+    let completedDateToString = new Date().toDateString();
+    task.completedDate = progress === "Completed" ? completedDateToString : task.completedDate
+
     const updatedTask = await task.save();
 
     res.status(200).json({
@@ -103,7 +107,6 @@ const deleteTask = async (req, res) => {
 module.exports = {
   getTasks,
   createTask,
-  toggleProgress,
   updateTask,
   deleteTask,
 };
