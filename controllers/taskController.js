@@ -23,7 +23,11 @@ const createTask = async (req, res) => {
   console.log("request body:", req.body);
   try {
     const newTask = await Task.create({
-      text, description, dateToComplete, progress, user_id
+      text,
+      description,
+      dateToComplete,
+      progress,
+      user_id,
     });
     console.log("New task created:", newTask);
     // update user's tasks' field to include the newly created task id
@@ -69,15 +73,23 @@ const updateTask = async (req, res) => {
     task.progress = progress ? progress : task.progress;
 
     let completedDateToString = new Date().toDateString();
-    task.completedDate = progress === "Completed" ? completedDateToString : task.completedDate
+    task.completedDate = progress === "Completed" ? completedDateToString : "";
+
+    message = {
+      Completed: "Task Completed!",
+      "In progress": "Task status changed to : In progress",
+      Stuck: "Task status changed to: Stuck ",
+      "New Task": "Task status changed to: New Task",
+    };
 
     const updatedTask = await task.save();
 
     res.status(200).json({
-      message: `Task has been edited`,
+      // message:
+      //   progress === "Completed" ? `Task completed!` : `Task has been edited`,
+      message: progress ? message[progress] : `Task has been edited`,
       updatedTask,
     });
-
   } catch (error) {
     res.status(401).json({
       message: `Could not update task: ${task.text}`,
