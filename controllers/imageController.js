@@ -47,9 +47,9 @@ const deleteImage = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).exec();
     await deleteFile(user.imgUrl);
-    const updatedUser = user.imgUrl = "";
+    user.imgUrl = "";
     await user.save();
-    res.status(200).json({ message: `Image removed`, updatedUser });
+    res.status(200).json({ message: `Image removed` });
   } catch (error) {
     res
       .status(400)

@@ -5,12 +5,19 @@ const User = require("../models/userModel");
 const getTasks = async (req, res) => {
   // retrieving the refresh token from cookies in the browser
   const token = req.cookies.jwt;
-  console.log(token);
   if (!token) return res.sendStatus(404);
-  const user = await User.findOne({ refreshToken: token }).lean().exec();
-  const tasks = await Task.find({ user_id: user._id }).lean().exec();
 
   try {
+    // there are 3 ways to query tasks belonging to a specific user
+    // 1) Find User through unique reresh token and querying User's embedded taskIds
+    // 2) matching user_id in task document with user logged in
+    // 3) Or matching Task.user_id to req.params.id (user id) 
+    // const user = await User.findOne({ refreshToken: token }).lean().exec();
+    // const tasks = await Task.find({ user_id: user._id }).lean().exec();
+    // const tasks = await Task.find({ _id: user.tasks }).lean().exec();
+    // const user = await User.findOne({_id: req.params.id});
+    // const tasks = await Task.find({ _id: user.tasks }).lean().exec();
+    const tasks = await Task.find({ user_id: req.params.id }).lean().exec();
     res.status(200).json({ tasks });
   } catch (error) {
     res.status(400).json({ message: "Failed to fetch tasks.." });
@@ -29,7 +36,6 @@ const createTask = async (req, res) => {
       progress,
       user_id,
     });
-    console.log("New task created:", newTask);
     // update user's tasks' field to include the newly created task id
     await User.findByIdAndUpdate(user_id, {
       $push: { tasks: newTask.id },
@@ -42,57 +48,44 @@ const createTask = async (req, res) => {
   }
 };
 
-// toggling progress
-// const toggleProgress = async (req, res) => {
-//   const task = await Task.findById(req.params.id);
-//   try {
-//     if (task) {
-//       task = !task.progress;
-//       task.save();
-//       res.status(200).json({
-//         message: `Progress of task id: ${task.id} has been set to ${task.status}`,
-//         task,
-//       });
-//     }
-//   } catch (error) {
-//     res.status(401).json({
-//       message: `Could not toggle progress of id: ${req.params.id}, ${error.message}`,
-//     });
-//   }
-// };
-
 // updating task or date
 const updateTask = async (req, res) => {
-  const task = await Task.findById(req.params.id).exec();
+  const { text, description, dateToComplete, progress } = req.body;
   console.log(req.body);
+  const notification = `Task status changed to: ${progress}`;
+  message = {
+    Completed: notification,
+    "In progress": notification,
+    Stuck: notification,
+    "New Task": notification,
+  };
+
   try {
-    const { text, description, dateToComplete, progress } = req.body;
-    task.text = text ? text : task.text;
-    task.description = description ? description : task.description;
-    task.dateToComplete = dateToComplete ? dateToComplete : task.dateToComplete;
-    task.progress = progress ? progress : task.progress;
+    // const task = await Task.findById(req.params.id);
+    const updatedTask = await Task.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      {
+        new: true,
+      }
+    ).exec();
 
-    let completedDateToString = new Date().toDateString();
-    task.completedDate = progress === "Completed" ? completedDateToString : "";
+    // task.text = text ? text : task.text;
+    // task.description = description ? description : task.description;
+    // task.dateToComplete = dateToComplete ? dateToComplete : task.dateToComplete;
+    // task.progress = progress ? progress : task.progress;
 
-    message = {
-      Completed: "Task Completed!",
-      "In progress": "Task status changed to : In progress",
-      Stuck: "Task status changed to: Stuck ",
-      "New Task": "Task status changed to: New Task",
-    };
-
-    const updatedTask = await task.save();
+    // let completedDateToString = new Date().toDateString();
+    // task.completedDate = progress === "Completed" ? completedDateToString : "";
+    // const updatedTask = await task.save();
 
     res.status(200).json({
-      // message:
-      //   progress === "Completed" ? `Task completed!` : `Task has been edited`,
       message: progress ? message[progress] : `Task has been edited`,
       updatedTask,
     });
   } catch (error) {
     res.status(401).json({
-      message: `Could not update task: ${task.text}`,
+      message: `Could not update task: ${text}`,
     });
   }
 };

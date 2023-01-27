@@ -4,13 +4,11 @@ const { getTasks, createTask, updateTask, deleteTask } = require('../controllers
 
 // API Routes
 // Getting all tasks
-router.get('/', getTasks);
+// router.get('/', getTasks);
+router.get('/:id', getTasks);
 
 // Creating a single task 
 router.post('/', createTask);
-
-// Toggling the progress
-// router.post('/:id', toggleProgress);
 
 // Editing a specific task and date
 router.put('/:id', updateTask);

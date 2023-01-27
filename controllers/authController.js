@@ -28,6 +28,7 @@ const handleLogin = async (req,res) => {
             // Saving the refresh token to the logged in user
             userFound.refreshToken = refreshToken;
             await userFound.save();
+            console.log(refreshToken);
             const user = await User.findOne({email}).select(["-password","-refreshToken"]).lean().exec()
             // Save the refresh token in a cookie but only available to HTTP, not available in jS (for security reasons)
             res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure:true, maxAge: 24 * 60 * 60 * 1000 })
