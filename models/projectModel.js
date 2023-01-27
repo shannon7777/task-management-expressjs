@@ -28,6 +28,12 @@ const projectSchema = new mongoose.Schema(
         },
       },
     ],
+    members: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+      }
+    ],
     priority: {
       type: Number,
       enum: [1, 2, 3, 4, 5],
