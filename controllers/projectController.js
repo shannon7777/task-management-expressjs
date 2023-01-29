@@ -3,6 +3,7 @@ const User = require("../models/userModel");
 
 const getProjects = async (req, res) => {
   const projects = await Project.find({ creator: req.params.id }).lean().exec();
+  // const members = await User.find({ _id: projects.members }).lean().exec();
   res.status(200).json({ projects });
 };
 
@@ -15,6 +16,7 @@ const createProject = async (req, res) => {
       completion_date,
       creator: user_id,
       priority,
+      members: user_id,
     });
     res.status(200).json({
       message: `A new project has been created: ${newProject.title}`,
@@ -31,8 +33,22 @@ const updateProject = async (req, res) => {};
 
 const addMember = async (req, res) => {
   const { project_id, member_email } = req.params;
-  const member = await User.findOne({ email: member_email }).lean().exec();
-  console.log(project_id);
+  const member = await User.findOne({ email: member_email })
+    .lean()
+    .exec();
+    
+  if (!member)
+    return res.status(401).json({ message: `${member_email} does not exist` });
+
+  const memberDuplicate = await Project.findById(project_id)
+    .where({ members: member._id })
+    .lean()
+    .exec();
+
+  if (memberDuplicate)
+    return res.status(201).json({
+      message: `${member_email} is already a member of this project`,
+    });
 
   try {
     await Project.findByIdAndUpdate(project_id, {
@@ -40,11 +56,21 @@ const addMember = async (req, res) => {
     });
     res
       .status(200)
-      .json({ message: `${member.username} has been added to the project` });
+      .json({ message: `${member.username} has been added to the project`, member });
   } catch (error) {
     res.status(400).json({ message: `Could not add member: ${error.message}` });
   }
 };
+
+// const getMembers = async (req, res) => {
+//   try {
+//     const project = await Project.findById(req.params.id).lean().exec();
+//     // const users = await User.find({ project._id })
+//     res.status(200).json({ users })
+//   } catch (error) {
+
+//   }
+// };
 
 const deleteProject = async (req, res) => {
   try {
