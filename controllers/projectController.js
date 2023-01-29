@@ -3,12 +3,14 @@ const User = require("../models/userModel");
 
 const getProjects = async (req, res) => {
   const projects = await Project.find({ creator: req.params.id }).lean().exec();
-  // const members = await User.find({ _id: projects.members }).lean().exec();
-  res.status(200).json({ projects });
+  const members = await User.find().lean().exec();
+//   console.log(members);
+  res.status(200).json({ projects, members });
 };
 
 const createProject = async (req, res) => {
   const { title, description, completion_date, user_id, priority } = req.body;
+  console.log(req.body);
   try {
     const newProject = await Project.create({
       title,
@@ -33,15 +35,13 @@ const updateProject = async (req, res) => {};
 
 const addMember = async (req, res) => {
   const { project_id, member_email } = req.params;
-  const member = await User.findOne({ email: member_email })
-    .lean()
-    .exec();
-    
-  if (!member)
+  const user = await User.findOne({ email: member_email }).lean().exec();
+
+  if (!user)
     return res.status(401).json({ message: `${member_email} does not exist` });
 
   const memberDuplicate = await Project.findById(project_id)
-    .where({ members: member._id })
+    .where({ members: user._id })
     .lean()
     .exec();
 
@@ -56,7 +56,10 @@ const addMember = async (req, res) => {
     });
     res
       .status(200)
-      .json({ message: `${member.username} has been added to the project`, member });
+      .json({
+        message: `${member.username} has been added to the project`,
+        user,
+      });
   } catch (error) {
     res.status(400).json({ message: `Could not add member: ${error.message}` });
   }
