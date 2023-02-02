@@ -3,9 +3,7 @@ const User = require("../models/userModel");
 
 const getProjects = async (req, res) => {
   const projects = await Project.find({ creator: req.params.id }).lean().exec();
-  const members = await User.find().lean().exec();
-//   console.log(members);
-  res.status(200).json({ projects, members });
+  res.status(200).json({ projects });
 };
 
 const createProject = async (req, res) => {
@@ -52,28 +50,30 @@ const addMember = async (req, res) => {
 
   try {
     await Project.findByIdAndUpdate(project_id, {
-      $push: { members: member._id },
+      $push: { members: user._id },
     });
-    res
-      .status(200)
-      .json({
-        message: `${member.username} has been added to the project`,
-        user,
-      });
+    res.status(200).json({
+      message: `${user.username} has been added to the project`,
+      user,
+    });
   } catch (error) {
     res.status(400).json({ message: `Could not add member: ${error.message}` });
   }
 };
 
-// const getMembers = async (req, res) => {
-//   try {
-//     const project = await Project.findById(req.params.id).lean().exec();
-//     // const users = await User.find({ project._id })
-//     res.status(200).json({ users })
-//   } catch (error) {
-
-//   }
-// };
+const getMembers = async (req, res) => {
+  const { project_id } = req.params;
+  try {
+    const project = await Project.findById(project_id).lean().exec();
+    const users = await User.find({ _id: project.members })
+      .select(["-password", "-tasks", "-refreshToken", "-roles"])
+      .lean()
+      .exec();
+    res.status(200).json({ users });
+  } catch (error) {
+    res.status(400).json({ message: `Could not retrieve team members` });
+  }
+};
 
 const deleteProject = async (req, res) => {
   try {
@@ -93,5 +93,6 @@ module.exports = {
   createProject,
   updateProject,
   addMember,
+  getMembers,
   deleteProject,
 };

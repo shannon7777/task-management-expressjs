@@ -1,10 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const { getProjects, createProject, updateProject, addMember, deleteProject } = require("../controllers/projectController");
+const { getProjects, createProject, updateProject, addMember, getMembers, deleteProject } = require("../controllers/projectController");
 
 // API ROUTES
 // GETTING ALL PROJECTS
 router.get("/:id", getProjects);
+
+// Retrieving team members of each project
+router.get("/members/:project_id", getMembers);
 
 // Creating a Project
 router.post("/", createProject);
