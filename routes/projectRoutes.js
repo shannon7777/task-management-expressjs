@@ -1,16 +1,27 @@
 const express = require("express");
 const router = express.Router();
-const { getProjects, createProject, updateProject, addMember, getMembers, deleteProject } = require("../controllers/projectController");
+const {
+  getProjects,
+  getProject,
+  createProject,
+  updateProject,
+  addMember,
+  getMembers,
+  deleteProject,
+} = require("../controllers/projectController");
 
 // API ROUTES
 // GETTING ALL PROJECTS
-router.get("/:id", getProjects);
+router.get("/:user_id", getProjects);
 
-// Retrieving team members of each project
-router.get("/members/:project_id", getMembers);
+// GET SINGLE PROJECT
+router.get("/one/:project_id", getProject);
 
 // Creating a Project
 router.post("/", createProject);
+
+// Retrieving team members of each project
+router.get("/members/:project_id", getMembers);
 
 // Adding a member to the Project
 router.post("/:project_id/:member_email", addMember);

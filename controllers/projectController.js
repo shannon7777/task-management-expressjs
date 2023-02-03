@@ -2,8 +2,19 @@ const Project = require("../models/projectModel");
 const User = require("../models/userModel");
 
 const getProjects = async (req, res) => {
-  const projects = await Project.find({ creator: req.params.id }).lean().exec();
+  const projects = await Project.find({ creator: req.params.user_id })
+    .lean()
+    .exec();
   res.status(200).json({ projects });
+};
+
+const getProject = async (req, res) => {
+  console.log(req.params);
+  // const project = await Project.findOne({_id: req.params.project_id}).lean().exec();
+  const project = await Project.find({ _id: req.params.project_id })
+    .lean()
+    .exec();
+  res.status(200).json(project);
 };
 
 const createProject = async (req, res) => {
@@ -90,6 +101,7 @@ const deleteProject = async (req, res) => {
 
 module.exports = {
   getProjects,
+  getProject,
   createProject,
   updateProject,
   addMember,

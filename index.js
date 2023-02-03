@@ -37,7 +37,7 @@ app.use("/api/users", require("./routes/userRoutes"));
 // Auth (login/logout/refreshtoken) route
 app.use("/api/auth", require("./routes/authRoutes"));
 // Using jwt verification middleware for routes below here
-app.use(verifyJwt);
+// app.use(verifyJwt);
 // Tasks route
 app.use("/api/tasks", require("./routes/taskRoutes"));
 // Projects route
