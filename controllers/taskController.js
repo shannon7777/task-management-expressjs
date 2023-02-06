@@ -50,7 +50,7 @@ const createTask = async (req, res) => {
 
 // updating task or date
 const updateTask = async (req, res) => {
-  const { text, description, dateToComplete, progress } = req.body;
+  const { text, progress } = req.body;
   console.log(req.body);
   const notification = `Task status changed to: ${progress}`;
   message = {

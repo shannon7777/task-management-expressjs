@@ -20,11 +20,11 @@ router.get("/one/:project_id", getProject);
 // Creating a Project
 router.post("/", createProject);
 
+// Adding a member to the Project
+router.post("/:project_id", addMember);
+
 // Retrieving team members of each project
 router.get("/members/:project_id", getMembers);
-
-// Adding a member to the Project
-router.post("/:project_id/:member_email", addMember);
 
 // Edit project
 router.put("/:id", updateProject);

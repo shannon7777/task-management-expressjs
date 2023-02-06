@@ -2,7 +2,8 @@ const Project = require("../models/projectModel");
 const User = require("../models/userModel");
 
 const getProjects = async (req, res) => {
-  const projects = await Project.find({ creator: req.params.user_id })
+  // gets all projects that user_id has created and is involved in
+  const projects = await Project.find({ members: req.params.user_id })
     .lean()
     .exec();
   res.status(200).json({ projects });
@@ -10,7 +11,6 @@ const getProjects = async (req, res) => {
 
 const getProject = async (req, res) => {
   console.log(req.params);
-  // const project = await Project.findOne({_id: req.params.project_id}).lean().exec();
   const project = await Project.find({ _id: req.params.project_id })
     .lean()
     .exec();
@@ -43,29 +43,31 @@ const createProject = async (req, res) => {
 const updateProject = async (req, res) => {};
 
 const addMember = async (req, res) => {
-  const { project_id, member_email } = req.params;
-  const user = await User.findOne({ email: member_email }).lean().exec();
+  const { project_id } = req.params;
+  const membersArr = req.body;
+  const users = await User.find({ email: membersArr }).lean().exec();
+  if (users.length < 1)
+    return res
+      .status(202)
+      .json({
+        message: `This user: ${[
+          ...membersArr,
+        ]} does not exist, please try another`,
+      });
 
-  if (!user)
-    return res.status(401).json({ message: `${member_email} does not exist` });
-
-  const memberDuplicate = await Project.findById(project_id)
-    .where({ members: user._id })
-    .lean()
-    .exec();
-
-  if (memberDuplicate)
-    return res.status(201).json({
-      message: `${member_email} is already a member of this project`,
-    });
+  const userIds = users.map((user) => user._id);
+  const usernames = users.map((user) => user.username);
 
   try {
     await Project.findByIdAndUpdate(project_id, {
-      $push: { members: user._id },
+      $push: { members: { $each: [...userIds] } },
     });
+
     res.status(200).json({
-      message: `${user.username} has been added to the project`,
-      user,
+      message: `${[...usernames]} ${
+        usernames.length > 1 ? "have" : "has"
+      } been added to the project`,
+      users,
     });
   } catch (error) {
     res.status(400).json({ message: `Could not add member: ${error.message}` });

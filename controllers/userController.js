@@ -4,11 +4,18 @@ const bcrypt = require("bcrypt");
 const createUser = async (req, res) => {
   const { firstName, lastName, email, username, password } = req.body;
   // check for email duplicates in DB
-  const duplicate = await User.findOne({ email }).lean().exec();
+  const duplicateEmail = await User.findOne({ email }).lean().exec();
+  const duplicateUsername = await User.findOne({ username }).lean().exec();
 
-  if (duplicate) {
+  if (duplicateEmail) {
     return res.status(409).json({
       message: `This email : ${email} already exists, please try another email`,
+    });
+  }
+
+  if (duplicateUsername) {
+    return res.status(408).json({
+      message: `This username : ${username} already exists, please try another email`,
     });
   }
 
@@ -22,8 +29,7 @@ const createUser = async (req, res) => {
       password: hashedPwd,
     });
     res.status(200).json({
-      message: `Registration successfull, please proceed to sign in.`,
-      success: true,
+      message: `Registration successful, please proceed to sign in.`,
     });
   } catch (error) {
     if (!firstName || !lastName || !email || !username || !password) {
