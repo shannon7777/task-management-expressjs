@@ -7,6 +7,7 @@ const {
   updateProject,
   addMember,
   getMembers,
+  removeMember,
   deleteProject,
 } = require("../controllers/projectController");
 
@@ -21,10 +22,13 @@ router.get("/one/:project_id", getProject);
 router.post("/", createProject);
 
 // Adding a member to the Project
-router.post("/:project_id", addMember);
+router.post("/members/:project_id", addMember);
 
-// Retrieving team members of each project
+// Retrieving team member/s from project
 router.get("/members/:project_id", getMembers);
+
+// Remove team member/s from 
+router.put("/members/:project_id", removeMember);
 
 // Edit project
 router.put("/:id", updateProject);
