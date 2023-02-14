@@ -12,10 +12,9 @@ const verifyJwt = (req, res, next) => {
   // Verify the access token from the header
   jwt.verify(token, secretKey, (error, decoded) => {
     if (error) return res.sendStatus(403); // invalid token
-    console.log('jwt is verified')
+    console.log("jwt is verified");
     // set the user as the decoded email
     req.email = decoded.email;
-    // call next() as middleware
     next();
   });
 };
