@@ -42,7 +42,8 @@ app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/tasks", require("./routes/taskRoutes"));
 // Projects route
 app.use("/api/projects", require("./routes/projectRoutes"));
-
+// Project tasks
+app.use("/api/projectItems/", require("./routes/projectItemRoutes"));
 // for static pages
 app.use(express.static(path.join(__dirname, "public")));
 

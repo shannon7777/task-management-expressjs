@@ -7,7 +7,7 @@ const projectSchema = new mongoose.Schema(
       required: true,
     },
     description: {
-      type: String, 
+      type: String,
       required: true,
     },
     completion_date: {
@@ -31,46 +31,13 @@ const projectSchema = new mongoose.Schema(
     members: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-      }
+        ref: "User",
+      },
     ],
     priority: {
       type: Number,
       enum: [1, 2, 3, 4, 5],
     },
-    project_tasks: [
-      {
-        todo: {
-          type: String,
-        },
-        date_to_complete: {
-          type: String,
-          required: true,
-        },
-        progress: {
-          type: String,
-          enum: ["Not Started", "In Progress", "Stuck", "Awaiting Review", "Completed"],
-          default: "Not Started",
-          required: true,
-        },
-        notes: [
-          {
-            type: String,
-            user_id: {
-              type: mongoose.Schema.Types.ObjectId,
-              required: true,
-              ref: "User",
-            },
-          },
-        ],
-        owners: [
-          {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-          },
-        ],
-      },
-    ],
   },
   {
     timestamps: true,

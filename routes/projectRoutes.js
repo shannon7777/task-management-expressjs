@@ -10,13 +10,14 @@ const {
   removeMember,
   deleteProject,
 } = require("../controllers/projectController");
+const verifyUser = require("../middleware/verifyUser");
 
 // API ROUTES
 // GETTING ALL PROJECTS
 router.get("/:user_id", getProjects);
 
 // GET SINGLE PROJECT
-router.get("/one/:project_id", getProject);
+router.get("/one/:project_id", verifyUser, getProject);
 
 // Creating a Project
 router.post("/", createProject);
@@ -27,7 +28,7 @@ router.post("/members/:project_id", addMember);
 // Retrieving team member/s from project
 router.get("/members/:project_id", getMembers);
 
-// Remove team member/s from 
+// Remove team member/s from project
 router.put("/members/:project_id", removeMember);
 
 // Edit project

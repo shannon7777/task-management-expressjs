@@ -1,6 +1,8 @@
 const Project = require("../models/projectModel");
 const User = require("../models/userModel");
 
+//  NEED TO WRITE MIDDLEWARE TO MAKE SURE USERS CAN ONLY SEE THE PROJECTS THEY ARE IN
+// EVEN AFTER TYPING THE PROJECT ID INTO URL
 const getProjects = async (req, res) => {
   // gets all projects that user_id has created and is involved in
   const projects = await Project.find({ members: req.params.user_id })
@@ -10,26 +12,24 @@ const getProjects = async (req, res) => {
 };
 
 const getProject = async (req, res) => {
-  try {
-    const project = await Project.find({ _id: req.params.project_id })
-      .lean()
-      .exec();
-    res.status(200).json(project);
-  } catch (error) {
-    res.status(400).json({ message: `Could not fetch user's projects` });
-  }
+  // try {
+  //   // retrieve project thru res.locals.project from middleware
+  //   res.status(200).json(res.locals.project);
+  // } catch (error) {
+  //   res.sendStatus(400);
+  // }
+  res.status(200).json(res.locals.project);
 };
 
 const createProject = async (req, res) => {
-  const { title, description, completion_date, user_id, priority } = req.body;
-  console.log(req.body);
+  const { title, description, completion_date, user_id, rating } = req.body;
   try {
     const newProject = await Project.create({
       title,
       description,
       completion_date,
       creator: user_id,
-      priority,
+      priority: rating,
       members: user_id,
     });
     res.status(200).json({
@@ -43,7 +43,24 @@ const createProject = async (req, res) => {
   }
 };
 
-const updateProject = async (req, res) => {};
+const updateProject = async (req, res) => {
+  try {
+    const updatedProject = await Project.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: req.body,
+      },
+      { new: true }
+    ).exec();
+
+    res.status(200).json({
+      message: `Updated project: ${updatedProject.title}`,
+      updatedProject,
+    });
+  } catch (error) {
+    res.status(400).json({ message: `Could not update project: ${error}` });
+  }
+};
 
 const addMember = async (req, res) => {
   const { project_id } = req.params;
@@ -51,12 +68,8 @@ const addMember = async (req, res) => {
   const users = await User.find({ email: membersArr }).lean().exec();
   if (users.length < 1)
     return res.status(403).json({
-      message: `This user: ${[
-        ...membersArr,
-      ]} does not exist, please try another`,
+      message: `${[...membersArr]} does not exist, please try another email`,
     });
-
-  // users.forEach(user => {return {user ? }})
 
   const userIds = users.map((user) => user._id);
   const userEmails = users.map((user) => user.email);
@@ -87,7 +100,7 @@ const getMembers = async (req, res) => {
       .exec();
     res.status(200).json({ users });
   } catch (error) {
-    res.status(400).json({ message: `Could not retrieve team members` });
+    res.sendStatus(400);
   }
 };
 

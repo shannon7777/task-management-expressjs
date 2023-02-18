@@ -4,14 +4,14 @@ const User = require("../models/userModel");
 // retreiving all tasks that belong to the user that is logged in
 const getTasks = async (req, res) => {
   // retrieving the refresh token from cookies in the browser
-  const token = req.cookies.jwt;
-  if (!token) return res.sendStatus(404);
+  // const token = req.cookies.jwt;
+  // if (!token) return res.sendStatus(404);
 
   try {
-    // there are 3 ways to query tasks belonging to a specific user
+    // 3 ways to query tasks belonging to a specific user: 
     // 1) Find User through unique reresh token and querying User's embedded taskIds
     // 2) matching user_id in task document with user logged in
-    // 3) Or matching Task.user_id to req.params.id (user id) 
+    // 3) Or matching Task.user_id to req.params.id (user id)
     // const user = await User.findOne({ refreshToken: token }).lean().exec();
     // const tasks = await Task.find({ user_id: user._id }).lean().exec();
     // const tasks = await Task.find({ _id: user.tasks }).lean().exec();
@@ -61,7 +61,6 @@ const updateTask = async (req, res) => {
   };
 
   try {
-    // const task = await Task.findById(req.params.id);
     const updatedTask = await Task.findByIdAndUpdate(
       req.params.id,
       { $set: req.body },
@@ -78,7 +77,6 @@ const updateTask = async (req, res) => {
     // let completedDateToString = new Date().toDateString();
     // task.completedDate = progress === "Completed" ? completedDateToString : "";
     // const updatedTask = await task.save();
-
     res.status(200).json({
       message: progress ? message[progress] : `Task has been edited`,
       updatedTask,
