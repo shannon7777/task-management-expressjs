@@ -7,7 +7,7 @@ const projectItemSchema = new mongoose.Schema(
     },
     deadline: {
       type: String,
-    //   required: true,
+      //   required: true,
     },
     progress: {
       type: String,
@@ -23,12 +23,15 @@ const projectItemSchema = new mongoose.Schema(
     },
     notes: [
       {
-        type: String,
+        note: {
+          type: String,
+        },
         user_id: {
           type: mongoose.Schema.Types.ObjectId,
           required: true,
           ref: "User",
         },
+        _id: { id: false },
       },
     ],
     owners: [

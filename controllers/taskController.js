@@ -8,7 +8,7 @@ const getTasks = async (req, res) => {
   // if (!token) return res.sendStatus(404);
 
   try {
-    // 3 ways to query tasks belonging to a specific user: 
+    // 3 ways to query tasks belonging to a specific user:
     // 1) Find User through unique reresh token and querying User's embedded taskIds
     // 2) matching user_id in task document with user logged in
     // 3) Or matching Task.user_id to req.params.id (user id)
@@ -68,15 +68,6 @@ const updateTask = async (req, res) => {
         new: true,
       }
     ).exec();
-
-    // task.text = text ? text : task.text;
-    // task.description = description ? description : task.description;
-    // task.dateToComplete = dateToComplete ? dateToComplete : task.dateToComplete;
-    // task.progress = progress ? progress : task.progress;
-
-    // let completedDateToString = new Date().toDateString();
-    // task.completedDate = progress === "Completed" ? completedDateToString : "";
-    // const updatedTask = await task.save();
     res.status(200).json({
       message: progress ? message[progress] : `Task has been edited`,
       updatedTask,

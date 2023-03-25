@@ -29,17 +29,61 @@ const createProjectItem = async (req, res) => {
   }
 };
 
-const getOwners = async (req, res) => {
-  const { projectItem_id } = req.params;
+const editProjectItem = async (req, res) => {
+  const { item_id } = req.params;
   try {
-    const projectItem = await ProjectItem.findById(projectItem_id)
-      .lean()
-      .exec();
+    const updatedItem = await ProjectItem.findByIdAndUpdate(
+      item_id,
+      {
+        $set: req.body,
+      },
+      { new: true }
+    ).exec();
+    res.status(200).json({
+      message: `Updated project item to : ${updatedItem.item}`,
+      updatedItem,
+    });
+  } catch (error) {
+    res.status(400).json({ message: `Could not updated item` });
+  }
+};
+
+const deleteProjectItem = async (req, res) => {
+  try {
+    const deletedItem = await ProjectItem.findByIdAndDelete(req.params.id);
+    res
+      .stats(200)
+      .json({ message: `Deleted project item: ${deletedItem.item}` });
+  } catch (error) {
+    res.status(400).json({ message: `Could not delete item` });
+  }
+};
+
+const createNote = async (req, res) => {
+  try {
+    const newNote = await ProjectItem.findByIdAndUpdate(
+      req.params.item_id,
+      {
+        $push: {
+          notes: req.body,
+        },
+      },
+      { new: true }
+    ).exec();
+    res.status(200).json({ message: `New note created` });
+  } catch (error) {
+    res.status(400).json({ message: `Could not add new note` });
+  }
+};
+
+const getOwners = async (req, res) => {
+  const { item_id } = req.params;
+  try {
+    const projectItem = await ProjectItem.findById(item_id).lean().exec();
     const owners = await User.find({ _id: projectItem.owners })
       .select(["-password", "-tasks", "-refreshToken", "-roles"])
       .lean()
       .exec();
-    console.log(owners);
     res.status(200).json({ owners });
   } catch (error) {
     res.sendStatus(400);
@@ -47,14 +91,14 @@ const getOwners = async (req, res) => {
 };
 
 const addOwners = async (req, res) => {
-  const { projectItem_id } = req.params;
+  const { item_id } = req.params;
   const ownersArr = req.body;
   const owners = await User.find({ email: ownersArr }).lean().exec();
   const ownerIds = owners.map(({ _id }) => _id);
   const ownerEmails = owners.map(({ email }) => email);
 
   try {
-    await ProjectItem.findByIdAndUpdate(projectItem_id, {
+    await ProjectItem.findByIdAndUpdate(item_id, {
       $addToSet: { owners: { $each: [...ownerIds] } },
     });
     res
@@ -66,14 +110,14 @@ const addOwners = async (req, res) => {
 };
 
 const removeOwners = async (req, res) => {
-  const { projectItem_id } = req.params;
+  const { item_id } = req.params;
   const owners = req.body;
   const users = await User.find({ email: owners }).lean().exec();
   const userIds = users.map(({ _id }) => _id);
   const userEmails = users.map(({ email }) => email);
 
   try {
-    await ProjectItem.findByIdAndUpdate(projectItem_id, {
+    await ProjectItem.findByIdAndUpdate(item_id, {
       $pull: { owners: { $in: [...userIds] } },
     });
     res
@@ -87,6 +131,9 @@ const removeOwners = async (req, res) => {
 module.exports = {
   getProjectItems,
   createProjectItem,
+  editProjectItem,
+  deleteProjectItem,
+  createNote,
   addOwners,
   getOwners,
   removeOwners,
