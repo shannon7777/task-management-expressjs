@@ -31,7 +31,6 @@ const projectItemSchema = new mongoose.Schema(
           required: true,
           ref: "User",
         },
-        _id: { id: false },
       },
     ],
     owners: [

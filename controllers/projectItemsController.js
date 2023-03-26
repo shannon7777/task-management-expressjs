@@ -76,6 +76,20 @@ const createNote = async (req, res) => {
   }
 };
 
+const removeNote = async (req, res) => {
+  console.log(req.body, req.params);
+  try {
+    await ProjectItem.findByIdAndUpdate(req.params.item_id, {
+      $pull: {
+        notes: { _id: req.body.note_id },
+      },
+    });
+    res.status(200).json({ message: `Deleted note` });
+  } catch (error) {
+    res.status(400).json({ message: `Could not delete note` });
+  }
+};
+
 const getOwners = async (req, res) => {
   const { item_id } = req.params;
   try {
@@ -134,6 +148,7 @@ module.exports = {
   editProjectItem,
   deleteProjectItem,
   createNote,
+  removeNote,
   addOwners,
   getOwners,
   removeOwners,

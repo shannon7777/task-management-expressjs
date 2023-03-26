@@ -6,6 +6,7 @@ const {
   editProjectItem,
   deleteProjectItem,
   createNote,
+  removeNote,
   addOwners,
   getOwners,
   removeOwners,
@@ -25,6 +26,9 @@ router.delete("/:item_id", deleteProjectItem);
 
 // Create Note
 router.put("/notes/:item_id", createNote);
+
+// Remove specific Note from notes
+router.put("/removeNote/:item_id", removeNote)
 
 // Get Owners from each project item
 router.get("/owners/:item_id", getOwners);
