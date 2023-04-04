@@ -17,6 +17,7 @@ const getProjectItems = async (req, res) => {
 const createProjectItem = async (req, res) => {
   console.log(req.body);
   const { item, deadline } = req.body;
+  if (!item) return;
   try {
     const projectItem = await ProjectItem.create({
       item,
@@ -49,10 +50,11 @@ const editProjectItem = async (req, res) => {
 };
 
 const deleteProjectItem = async (req, res) => {
+  console.log(req.params.item_id);
   try {
-    const deletedItem = await ProjectItem.findByIdAndDelete(req.params.id);
+    const deletedItem = await ProjectItem.findByIdAndDelete(req.params.item_id);
     res
-      .stats(200)
+      .status(200)
       .json({ message: `Deleted project item: ${deletedItem.item}` });
   } catch (error) {
     res.status(400).json({ message: `Could not delete item` });
@@ -61,7 +63,7 @@ const deleteProjectItem = async (req, res) => {
 
 const createNote = async (req, res) => {
   try {
-    const newNote = await ProjectItem.findByIdAndUpdate(
+    const createdNote = await ProjectItem.findByIdAndUpdate(
       req.params.item_id,
       {
         $push: {
@@ -70,14 +72,16 @@ const createNote = async (req, res) => {
       },
       { new: true }
     ).exec();
-    res.status(200).json({ message: `New note created` });
+    // getting the last (created) noteObject of the notes array & send to client
+    // const { length, [length-1]: newNote } = createdNote.notes;
+    const newNote = [...createdNote.notes].pop();
+    res.status(200).json({ message: `New note created`, newNote });
   } catch (error) {
     res.status(400).json({ message: `Could not add new note` });
   }
 };
 
 const removeNote = async (req, res) => {
-  console.log(req.body, req.params);
   try {
     await ProjectItem.findByIdAndUpdate(req.params.item_id, {
       $pull: {

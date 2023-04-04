@@ -1,19 +1,23 @@
 const User = require("../models/userModel");
 const Project = require("../models/projectModel");
+const mongoose = require("mongoose");
 
 const verifyUser = async (req, res, next) => {
-  // to find whether user exists in project
+  const projectExists = mongoose.isValidObjectId(req.params.project_id);
+  if (!projectExists) {
+    return res.status(401).json({ message: "Project does not exist" });
+  }
   try {
     const token = req.cookies.jwt;
     const user = await User.findOne({ refreshToken: token }).lean().exec();
-    const project = await Project.findById({ _id: req.params.project_id })
+    // passing project object through middleware using res.locals
+    let project = await Project.findOne({ _id: req.params.project_id })
       .lean()
       .exec();
-    // passing project object through middleware using res.locals
     res.locals.project = project;
     const userExists = project.members.some((id) => id.equals(user._id));
     if (userExists) return next();
-    res.sendStatus(404);
+    res.status(404).json({ message: "You don't belong to this project" });
   } catch (error) {
     res.sendStatus(400);
   }

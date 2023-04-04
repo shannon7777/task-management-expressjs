@@ -12,12 +12,7 @@ const getProjects = async (req, res) => {
 };
 
 const getProject = async (req, res) => {
-  // try {
-  //   // retrieve project thru res.locals.project from middleware
-  //   res.status(200).json(res.locals.project);
-  // } catch (error) {
-  //   res.sendStatus(400);
-  // }
+  // retrieved project thru res.locals.project passed from middleware
   res.status(200).json(res.locals.project);
 };
 
@@ -44,6 +39,7 @@ const createProject = async (req, res) => {
 };
 
 const updateProject = async (req, res) => {
+  console.log(req.body);
   try {
     const updatedProject = await Project.findByIdAndUpdate(
       req.params.id,
@@ -57,6 +53,7 @@ const updateProject = async (req, res) => {
       message: `Updated project: ${updatedProject.title}`,
       updatedProject,
     });
+    console.log(updatedProject);
   } catch (error) {
     res.status(400).json({ message: `Could not update project: ${error}` });
   }

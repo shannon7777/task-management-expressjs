@@ -69,37 +69,28 @@ const getUser = async (req, res) => {
 };
 
 const editUser = async (req, res) => {
-  const { firstName, lastName, username, password } = req.body;
-  console.log(req.body);
-  //   const user = await User.findById(req.params.id).exec()
-  const user = await User.findById(req.params.id)
-    .select(["-password", "-refreshToken"])
-    .exec();
-  // const user = await User.findById(req.params.id).select("-refreshToken").exec();
-  if (!user) return res.status(400).json({ message: `User not found` });
-
+  const { password } = req.body;
   if (password) {
-    user.password = await bcrypt.hash(password, 10);
+    const hashed = await bcrypt.hash(password, 10);
+    await User.findByIdAndUpdate(req.params.id, { password: hashed })
+      .select(["-password", "-refreshToken"])
+      .lean()
+      .exec();
+    return res.status(201).json({ message: `Password updated` });
   }
-
   try {
-    // const editedUser = await User.findByIdAndUpdate(user._id, {
-    //   firstName: firstName,
-    //   lastName: lastName,
-    //   username: username,
-    //   password: password
-    // }).select("-password");
-    user.firstName = firstName ? firstName : user.firstName;
-    user.lastName = lastName ? lastName : user.lastName;
-    user.username = username ? username : user.username;
-
-    // if(password){
-    //     user.password = await bcrypt.hash(password, 10);
-    // }
-    const editedUser = await user.save();
-    // const editedUser = await User.findOne(user._id).exec()
+    const editedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: req.body,
+      },
+      { new: true }
+    )
+      .select(["-password", "-refreshToken"])
+      .lean()
+      .exec();
     res.status(200).json({
-      message: `${user.email}'s info successfully edited`,
+      message: `${editedUser.email}'s info successfully edited`,
       editedUser,
     });
   } catch (error) {
@@ -111,12 +102,11 @@ const retypePassword = async (req, res) => {
   console.log(req.body);
   const { retypePwd } = req.body;
   const user = await User.findById(req.params.id).lean().exec();
-
   const pwdMatch = await bcrypt.compare(retypePwd, user.password);
   if (pwdMatch) {
     res.status(200).json({ message: true });
   } else {
-    res.status(401).send();
+    res.status(400).json({ message: `Wrong password, try again` });
   }
 };
 

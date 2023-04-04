@@ -6,7 +6,6 @@ const getTasks = async (req, res) => {
   // retrieving the refresh token from cookies in the browser
   // const token = req.cookies.jwt;
   // if (!token) return res.sendStatus(404);
-
   try {
     // 3 ways to query tasks belonging to a specific user:
     // 1) Find User through unique reresh token and querying User's embedded taskIds
@@ -26,14 +25,12 @@ const getTasks = async (req, res) => {
 
 // creating a task that belongs to user
 const createTask = async (req, res) => {
-  const { text, description, dateToComplete, progress, user_id } = req.body;
-  console.log("request body:", req.body);
+  const { text, description, dateToComplete, user_id } = req.body;
   try {
     const newTask = await Task.create({
       text,
       description,
       dateToComplete,
-      progress,
       user_id,
     });
     // update user's tasks' field to include the newly created task id
@@ -51,7 +48,6 @@ const createTask = async (req, res) => {
 // updating task or date
 const updateTask = async (req, res) => {
   const { text, progress } = req.body;
-  console.log(req.body);
   const notification = `Task status changed to: ${progress}`;
   message = {
     Completed: notification,
@@ -73,7 +69,7 @@ const updateTask = async (req, res) => {
       updatedTask,
     });
   } catch (error) {
-    res.status(401).json({
+    res.status(400).json({
       message: `Could not update task: ${text}`,
     });
   }
@@ -88,7 +84,7 @@ const deleteTask = async (req, res) => {
     await User.updateOne(user, { $pull: { tasks: req.params.id } });
     const deletedTask = await Task.findByIdAndDelete(req.params.id);
     res.status(200).json({
-      message: `Successfully deleted task of id: ${req.params.id}`,
+      message: `Successfully deleted task: ${deletedTask.text}`,
       deletedTask,
     });
   } catch (error) {

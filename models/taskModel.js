@@ -20,6 +20,7 @@ const taskSchema = new mongoose.Schema(
       type: String,
       enum: ["New Task", "In progress", "Stuck", "Completed"],
       required: true,
+      default: "New Task",
     },
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
