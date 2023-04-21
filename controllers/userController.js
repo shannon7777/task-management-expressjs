@@ -99,7 +99,6 @@ const editUser = async (req, res) => {
 };
 
 const retypePassword = async (req, res) => {
-  console.log(req.body);
   const { retypePwd } = req.body;
   const user = await User.findById(req.params.id).lean().exec();
   const pwdMatch = await bcrypt.compare(retypePwd, user.password);

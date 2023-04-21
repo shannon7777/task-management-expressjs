@@ -17,7 +17,7 @@ const getProjectItems = async (req, res) => {
 const createProjectItem = async (req, res) => {
   console.log(req.body);
   const { item, deadline } = req.body;
-  if (!item) return;
+  if (!item) return
   try {
     const projectItem = await ProjectItem.create({
       item,
@@ -32,6 +32,7 @@ const createProjectItem = async (req, res) => {
 
 const editProjectItem = async (req, res) => {
   const { item_id } = req.params;
+  console.log(req.body);
   try {
     const updatedItem = await ProjectItem.findByIdAndUpdate(
       item_id,
@@ -111,7 +112,10 @@ const getOwners = async (req, res) => {
 const addOwners = async (req, res) => {
   const { item_id } = req.params;
   const ownersArr = req.body;
-  const owners = await User.find({ email: ownersArr }).lean().exec();
+  const owners = await User.find({ email: ownersArr })
+    .select(["-password", "-tasks", "-refreshToken", "-roles"])
+    .lean()
+    .exec();
   const ownerIds = owners.map(({ _id }) => _id);
   const ownerEmails = owners.map(({ email }) => email);
 
