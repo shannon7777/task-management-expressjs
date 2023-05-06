@@ -53,7 +53,6 @@ const updateProject = async (req, res) => {
       message: `Updated project: ${updatedProject.title}`,
       updatedProject,
     });
-    console.log(updatedProject);
   } catch (error) {
     res.status(400).json({ message: `Could not update project: ${error}` });
   }

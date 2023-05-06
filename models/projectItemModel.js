@@ -7,7 +7,6 @@ const projectItemSchema = new mongoose.Schema(
     },
     deadline: {
       type: String,
-      //   required: true,
     },
     progress: {
       type: String,
@@ -42,6 +41,11 @@ const projectItemSchema = new mongoose.Schema(
     project_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Project",
+      required: true,
+    },
+    category_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
       required: true,
     },
   },

@@ -1,5 +1,6 @@
 const ProjectItem = require("../models/projectItemModel");
 const User = require("../models/userModel");
+const Category = require("../models/categoryModel");
 
 const getProjectItems = async (req, res) => {
   try {
@@ -14,15 +15,65 @@ const getProjectItems = async (req, res) => {
   }
 };
 
+const getCategories = async (req, res) => {
+  try {
+    const categories = await Category.find({
+      project_id: req.params.project_id,
+    })
+      .lean()
+      .exec();
+    res.status(200).json({ categories });
+  } catch (error) {
+    res.status(400).json({ message: `Could not fetch project categories` });
+  }
+};
+
+const createCategory = async (req, res) => {
+  console.log(req.body);
+  const { title } = req.body;
+  if (!title) return;
+  try {
+    const newCategory = await Category.create({
+      title,
+      project_id: req.params.project_id,
+    });
+    res.status(200).json({ message: `Category: ${title} added`, newCategory });
+  } catch (error) {
+    res.status(400).json({ message: `Could not create category` });
+  }
+};
+
+const updateCategory = async (req, res) => {
+  console.log(req.body);
+  try {
+    const updatedCategory = await Category.findByIdAndUpdate(
+      req.params.category_id,
+      req.body,
+      { new: true }
+    ).exec();
+    res
+      .status(200)
+      .json({ message: `Updated category title`, updatedCategory });
+  } catch (error) {
+    res.status(400).json({ message: `Could not update category title` });
+  }
+};
+
 const createProjectItem = async (req, res) => {
   console.log(req.body);
-  const { item, deadline } = req.body;
-  if (!item) return
+  const { item, deadline, category_id } = req.body;
+  if (!item) return;
   try {
     const projectItem = await ProjectItem.create({
       item,
       deadline,
       project_id: req.params.project_id,
+      category_id,
+    });
+    await Category.findByIdAndUpdate(category_id, {
+      $push: {
+        projectItem_ids: projectItem.id,
+      },
     });
     res.status(200).json({ message: `New item created`, projectItem });
   } catch (error) {
@@ -152,6 +203,9 @@ const removeOwners = async (req, res) => {
 
 module.exports = {
   getProjectItems,
+  getCategories,
+  createCategory,
+  updateCategory,
   createProjectItem,
   editProjectItem,
   deleteProjectItem,

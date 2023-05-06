@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 const {
   getProjectItems,
+  getCategories,
+  createCategory,
+  updateCategory,
   createProjectItem,
   editProjectItem,
   deleteProjectItem,
@@ -12,8 +15,17 @@ const {
   removeOwners,
 } = require("../controllers/projectItemsController");
 
-//   GET ALL PROJECT ITEMS
+// Fetch all project items
 router.get("/:project_id", getProjectItems);
+
+// Fetch Project Categories
+router.get("/category/:project_id", getCategories);
+
+// Create category
+router.post("/category/:project_id", createCategory);
+
+// Edit Category
+router.put("/category/:category_id", updateCategory)
 
 // CREATE ITEM
 router.post("/:project_id", createProjectItem);
@@ -28,7 +40,7 @@ router.delete("/:item_id", deleteProjectItem);
 router.put("/notes/:item_id", createNote);
 
 // Remove specific Note from notes
-router.put("/removeNote/:item_id", removeNote)
+router.put("/removeNote/:item_id", removeNote);
 
 // Get Owners from each project item
 router.get("/owners/:item_id", getOwners);
