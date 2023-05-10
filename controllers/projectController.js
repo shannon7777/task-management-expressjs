@@ -12,6 +12,7 @@ const getProjects = async (req, res) => {
 };
 
 const getProject = async (req, res) => {
+  console.log(`getProject controller fired`);
   // retrieved project thru res.locals.project passed from middleware
   res.status(200).json(res.locals.project);
 };
@@ -40,11 +41,14 @@ const createProject = async (req, res) => {
 
 const updateProject = async (req, res) => {
   console.log(req.body);
+  const editedObj = Object.fromEntries(
+    Object.entries(req.body).filter((value) => value[1] !== "")
+  );
   try {
     const updatedProject = await Project.findByIdAndUpdate(
       req.params.id,
       {
-        $set: req.body,
+        $set: editedObj,
       },
       { new: true }
     ).exec();

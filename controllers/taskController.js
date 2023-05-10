@@ -7,6 +7,7 @@ const getTasks = async (req, res) => {
   // const token = req.cookies.jwt;
   // if (!token) return res.sendStatus(404);
   try {
+    console.log(`tasks fetched`);
     // 3 ways to query tasks belonging to a specific user:
     // 1) Find User through unique reresh token and querying User's embedded taskIds
     // 2) matching user_id in task document with user logged in

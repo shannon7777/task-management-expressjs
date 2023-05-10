@@ -3,6 +3,7 @@ const User = require("../models/userModel");
 const Category = require("../models/categoryModel");
 
 const getProjectItems = async (req, res) => {
+  console.log(`fetchprojectitems fired`);
   try {
     const projectItems = await ProjectItem.find({
       project_id: req.params.project_id,
@@ -163,6 +164,7 @@ const getOwners = async (req, res) => {
 const addOwners = async (req, res) => {
   const { item_id } = req.params;
   const ownersArr = req.body;
+  console.log(ownersArr);
   const owners = await User.find({ email: ownersArr })
     .select(["-password", "-tasks", "-refreshToken", "-roles"])
     .lean()
@@ -184,18 +186,17 @@ const addOwners = async (req, res) => {
 
 const removeOwners = async (req, res) => {
   const { item_id } = req.params;
-  const owners = req.body;
-  const users = await User.find({ email: owners }).lean().exec();
-  const userIds = users.map(({ _id }) => _id);
-  const userEmails = users.map(({ email }) => email);
+  const owner = req.body;
+  const user = await User.find({ email: owner }).lean().exec();
+  const { _id: userId, email: userEmail } = user[0];
 
   try {
     await ProjectItem.findByIdAndUpdate(item_id, {
-      $pull: { owners: { $in: [...userIds] } },
+      $pull: { owners: { $in: userId } },
     });
     res
       .status(200)
-      .json({ message: `Removed ${[...userEmails]} from this task` });
+      .json({ message: `Removed ${userEmail} from this task`, user });
   } catch (error) {
     res.status(400).json({ message: `Could not remove user` });
   }
