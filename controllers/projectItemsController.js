@@ -60,6 +60,19 @@ const updateCategory = async (req, res) => {
   }
 };
 
+const deleteCategory = async (req, res) => {
+  try {
+    // deleting a category should remove all associated projectItems
+    await ProjectItem.deleteMany({ category_id: req.params.category_id });
+    const category = await Category.findByIdAndDelete(req.params.category_id);
+    res
+      .status(200)
+      .json({ message: `Category ${category.title} has been removed` });
+  } catch (error) {
+    res.status(400).json({ message: `Could not remove category` });
+  }
+};
+
 const createProjectItem = async (req, res) => {
   console.log(req.body);
   const { item, deadline, category_id } = req.body;
@@ -106,6 +119,9 @@ const deleteProjectItem = async (req, res) => {
   console.log(req.params.item_id);
   try {
     const deletedItem = await ProjectItem.findByIdAndDelete(req.params.item_id);
+    await Category.findByIdAndUpdate(deletedItem.category_id, {
+      $pull: { projectItem_ids: { $in: item_id } },
+    });
     res
       .status(200)
       .json({ message: `Deleted project item: ${deletedItem.item}` });
@@ -207,6 +223,7 @@ module.exports = {
   getCategories,
   createCategory,
   updateCategory,
+  deleteCategory,
   createProjectItem,
   editProjectItem,
   deleteProjectItem,

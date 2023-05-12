@@ -5,6 +5,7 @@ const {
   getCategories,
   createCategory,
   updateCategory,
+  deleteCategory,
   createProjectItem,
   editProjectItem,
   deleteProjectItem,
@@ -25,7 +26,10 @@ router.get("/category/:project_id", getCategories);
 router.post("/category/:project_id", createCategory);
 
 // Edit Category
-router.put("/category/:category_id", updateCategory)
+router.put("/category/:category_id", updateCategory);
+
+//Remove Category
+router.delete("/category/:category_id", deleteCategory);
 
 // CREATE ITEM
 router.post("/:project_id", createProjectItem);

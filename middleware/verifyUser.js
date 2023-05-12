@@ -3,6 +3,7 @@ const Project = require("../models/projectModel");
 const mongoose = require("mongoose");
 
 const verifyUser = async (req, res, next) => {
+  console.log(`verifyuser middleware`);
   const projectExists = mongoose.isValidObjectId(req.params.project_id);
   if (!projectExists) {
     return res.status(401).json({ message: "Project does not exist" });

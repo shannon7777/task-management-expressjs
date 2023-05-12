@@ -1,5 +1,6 @@
 const Project = require("../models/projectModel");
 const User = require("../models/userModel");
+const ProjectItem = require("../models/projectItemModel");
 
 //  NEED TO WRITE MIDDLEWARE TO MAKE SURE USERS CAN ONLY SEE THE PROJECTS THEY ARE IN
 // EVEN AFTER TYPING THE PROJECT ID INTO URL
@@ -115,6 +116,15 @@ const removeMember = async (req, res) => {
     await Project.findByIdAndUpdate(project_id, {
       $pull: { members: { $in: [...userIds] } },
     });
+    // to pull multiple nested items in array from multiple documents at once
+    await ProjectItem.updateMany(
+      { project_id },
+      {
+        $pull: { owners: { $in: [...userIds] } },
+      },
+      { multi: true }
+    );
+
     res
       .status(200)
       .json({ message: `Removed ${[...userEmails]} from this project` });
